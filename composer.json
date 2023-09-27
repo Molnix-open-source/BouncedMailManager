@@ -1,0 +1,35 @@
+{
+    "name": "molnix/bounced-mail-manager",
+    "description": "Check for bounced emails and take action on them.",
+    "keywords": ["laravel", "email", "bounce"],
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Molnix\\BouncedMailManager\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Vishnu",
+            "email": "vishnu@molnix.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Molnix\\BouncedMailManager\\BounceManagerServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "php": "^7.1|^8.0",
+        "illuminate/support": "^8.0|^9.0|^10.0",
+        "illuminate/mail": "^8.0|^9.0|^10.0",
+        "illuminate/bus": "^8.0|^9.0|^10.0",
+        "illuminate/console": "^8.0|^9.0|^10.0",
+        "ddeboer/imap": "^1.12"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.27"
+    }
+}
