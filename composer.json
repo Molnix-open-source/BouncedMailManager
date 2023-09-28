@@ -2,6 +2,7 @@
     "name": "molnix/bounced-mail-manager",
     "description": "Check for bounced emails and take action on them.",
     "keywords": ["laravel", "email", "bounce"],
+    "license": "MIT",
     "type": "library",
     "autoload": {
         "psr-4": {
