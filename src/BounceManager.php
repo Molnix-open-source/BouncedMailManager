@@ -99,7 +99,7 @@ class BounceManager
             if($this->deleteMode) {
                 $message->delete();
             } else {
-                // $message->markAsSeen();
+                $message->markAsSeen();
             }
         }
         return $bounces;
