@@ -29,8 +29,8 @@ Package can be customized with optional env variables
 | `BOUNCEMAIL_PORT` | IMAP port, default: **993**|
 | `BOUNCEMAIL_USERNAME` | IMAP username, default: **MAIL_USERNAME** from .env|
 | `BOUNCEMAIL_PASSWORD` | IMAP password, default: **MAIL_PASSWORD** from .env|
-| `BOUNCEMAIL_MAILBOX` | IMAP password, default: **INBOX**|
-| `BOUNCEMAIL_DELETE_MODE` | IMAP password, default: **true**|
+| `BOUNCEMAIL_MAILBOX` | Mailox name, default: **INBOX**|
+| `BOUNCEMAIL_DELETE_MODE` | False will use *read/unread* instead of deleting, default: **true**|
 
 #### Configuration
 
@@ -41,6 +41,8 @@ Package can be customized with optional env variables
 | `config` | Configuration |
 | `views` | Notification email markdown |
 | `translations` | Bounce reason translations |
+
+Optionally publish files if further customization is required.
 
 ```bash
 

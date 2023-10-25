@@ -89,7 +89,7 @@ class BounceManager
                 continue;
             }
 
-            if (!$bouncedMessage->reason) {
+            if (!$bouncedMessage->reason || $bouncedMessage->reason == '') {
                 continue;
             }
 

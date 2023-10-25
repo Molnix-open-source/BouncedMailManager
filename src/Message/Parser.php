@@ -1,4 +1,5 @@
 <?php
+
 namespace Molnix\BouncedMailManager\Message;
 
 class Parser
@@ -19,9 +20,9 @@ class Parser
      * @param string $body
      * @return string
      */
-    public static function parse(string $body) : string
+    public static function parse(string $body): string
     {
-        
+
         /* rule: dns_unknown
         * sample:
         *   Technical details of permanent failure:
@@ -452,6 +453,6 @@ class Parser
             return self::BOUNCE_REASON_REJECTED;
         }
 
-        return null;
+        return '';
     }
 }
