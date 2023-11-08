@@ -10,7 +10,7 @@ class BounceManagerServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'bouncemanager');
-        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'bouncemanager');
+        $this->loadTranslationsFrom(__DIR__.'/../lang', 'bouncemanager');
 
         $this->publishes([
             __DIR__.'/../resources/views' => resource_path('views/vendor/bouncemanager'),
@@ -21,7 +21,7 @@ class BounceManagerServiceProvider extends ServiceProvider
         ], 'config');
 
         $this->publishes([
-            __DIR__.'/../resources/lang' => resource_path('lang/vendor/bouncemanager'),
+            __DIR__.'/../lang' => $this->app->langPath('lang/vendor/bouncemanager'),
         ], 'translations');
 
 
