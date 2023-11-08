@@ -100,3 +100,5 @@ string  $host, string  $port = '993', string  $username, string  $password, stri
 ))->get()
 
 ```
+
+Made with ❤ in Finland by [Molnix.com](https://molnix.com) and [Webbhuset](https://webbhuset.fi)
