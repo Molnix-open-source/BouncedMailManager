@@ -101,4 +101,4 @@ string  $host, string  $port = '993', string  $username, string  $password, stri
 
 ```
 
-Made with ❤ in Finland by [Molnix.com](https://molnix.com) and [Webbhuset](https://webbhuset.fi)
+Made with ❤ in Finland by [Molnix](https://molnix.com) and [Webbhuset](https://webbhuset.fi)
