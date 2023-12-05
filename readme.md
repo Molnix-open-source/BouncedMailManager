@@ -102,12 +102,130 @@ php artisan bouncemanager:run
 
 ```php
 
-Check the [Wiki](https://github.com/Molnix-open-source/BouncedMailManager/wiki/Usage) for usage instructions.
+- #### Create instance
+```php
+use Molnix\BouncedMailManager\BounceManager;
+$manager = new BounceManager(
+    'imap.example.com', 
+    '993', 
+    'wind@example.com', 
+    'emailpassword', 
+    string $mailbox = 'INBOX', 
+    array $options = [] // extra optional options
+);
+```
+or
 
-$messages = (new  BounceManager(
-string  $host, string  $port = '993', string  $username, string  $password, string  $mailbox = 'INBOX'
-))->get()
+```php
+use Molnix\BouncedMailManager\BounceManager;
+use Molnix\BouncedMailManager\Clients\ImapClient;
 
+$manager->setClient(new ImapClient(
+    'imap.example.com', 
+    '993', 
+    'wind@example.com', 
+    'emailpassword', 
+    string $mailbox = 'INBOX', 
+    array $options = [] // extra optional options
+));
+
+```
+
+or Office 365 way
+
+```php
+use Molnix\BouncedMailManager\BounceManager;
+use Molnix\BouncedMailManager\Clients\O365Client;
+
+$manager = new BounceManager();
+$manager->setClient(new O365Client('wind@example.com', $tenant_id, $client_id, $client_secret));
+
+```
+
+- #### Change mailbox
+```php 
+$manager->setMailbox('OtherMailbBoxName');
+```
+
+- #### Set period of days to parse
+```php 
+// Use -1 for all mails.
+$manager->setDaysFrom(10); // Since last 10 days
+```
+
+- #### Set how to handle processed email management. Default is to mark the mail as seen. To use delete after process:
+```php 
+$manager->enableDeleteMode(); // Since last 10 days
+```
+- #### Get data
+```php 
+
+$manager->toArray(); // Returns simple array of bounces.
+$manager->get(); // Returns array of bounces objects.
+```
+
+### Setup office 365 mailbox.
+
+
+The setup needed to be done in two section, 
+1. Azure web portal
+2. Powershell
+
+## Azure web portal
+1. #### Register app in azure
+
+ ![Screenshot from 2023-12-04 17-12-11](https://github.com/Molnix-open-source/BouncedMailManager/assets/15659965/ff71aacb-ea6b-424b-9ecd-b576134be470)
+
+2. #### Setup Permissions, Click on `API permissions` -> `APIs my organization uses` tab -> serach `Office 365 Exchange Online` -> `Application permissions` -> `IMAP.AccessAsApp`
+
+![Screenshot from 2023-12-04 17-20-23](https://github.com/Molnix-open-source/BouncedMailManager/assets/15659965/9fa418ea-d3b2-488c-a35f-b043709bc458)
+
+
+3. #### `Grant admin consent` by clicking the button
+
+![Screenshot from 2023-12-04 17-21-44](https://github.com/Molnix-open-source/BouncedMailManager/assets/15659965/ecd44fa4-0599-42ab-a0db-0db1043ca3bf)
+
+4. ### Create app secret. Once created, Copy the value as it shows only once.
+
+![Screenshot from 2023-12-04 17-25-49](https://github.com/Molnix-open-source/BouncedMailManager/assets/15659965/3cf2b84e-7337-4475-99cf-f5fb882d204a)
+
+## Powershell
+
+Run these commands in powershell in order one by one. Remember to replace values for `$AppId` with `Application (client) ID`, `$TenantId` with `Directory (tenant) ID`. These can be found in the app page in azure web. `Your email ID` with the mailbox email you grant access to.
+
+```powershell
+
+Install-Module -Name AzureAD
+Install-Module -Name ExchangeOnlineManagement
+
+
+$AppId = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+$TenantId = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+
+Import-module AzureAD
+Connect-AzureAd -Tenant $TenantId
+
+($Principal = Get-AzureADServicePrincipal -filter "AppId eq '$AppId'")
+$PrincipalId = $Principal.ObjectId
+
+
+$DisplayName = "Bounce manager IMAP Access"
+
+Import-module ExchangeOnlineManagement
+Connect-ExchangeOnline -Organization $TenantId
+
+New-ServicePrincipal -AppId $AppId -ServiceId $PrincipalId -DisplayName $DisplayName
+
+Add-MailboxPermission -User $PrincipalId -AccessRights FullAccess -Identity "Your email ID"
+```
+Usage
+```php
+use Molnix\BouncedMailManager\BounceManager;
+use Molnix\BouncedMailManager\Clients\O365;
+
+$manager = new BounceManager();
+$manager->setClient(new O365('wind@example.com', $tenant_id, $client_id, $client_secret));
+$manager->get();
 ```
 
 Made with ❤ in Finland by [Molnix](https://molnix.com) and [Webbhuset](https://webbhuset.fi)
