@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Molnix\BouncedMailManager\Message;
 
-use Ddeboer\Imap\Message;
+use Webklex\PHPIMAP\Message;
 
 class BouncedMessage
 {
@@ -31,10 +31,10 @@ class BouncedMessage
 
     protected function setupReason(): string
     {
-        $body = $this->message->getBodyText();
+        $body = $this->message->getTextBody();
 
         if (!$body && '' === $body) {
-            $body = $this->message->getBodyHtml();
+            $body = $this->message->getHTMLBody();
         }
 
         if (!$body && '' === $body) {

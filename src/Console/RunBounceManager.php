@@ -6,6 +6,8 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Molnix\BouncedMailManager\BounceManager;
+use Molnix\BouncedMailManager\Clients\ImapClient;
+use Molnix\BouncedMailManager\Clients\O365Client;
 use Molnix\BouncedMailManager\Mail\BounceNotificationMail;
 
 class RunBounceManager extends Command
@@ -21,31 +23,40 @@ class RunBounceManager extends Command
 
         $days = (int) $this->argument('days');
         $shouldQueue = $this->option('queue');
-        $messages = (new BounceManager(
-            config('bouncemanager.host'),
-            config('bouncemanager.port'),
-            config('bouncemanager.username'),
-            config('bouncemanager.password'),
-            config('bouncemanager.mailbox'),
-        ))
+        $bounceManager = (new BounceManager())
         ->setDaysFrom($days);
 
-        if(config('bouncemanager.delete_mode')) {
-            $messages->enableDeleteMode();
+        switch(config('bouncemanager.type')) {
+            case 'o365':
+                $bounceManager->setClient(new O365Client(
+                    config('bouncemanager.username'),
+                    config('bouncemanager.azure_tenant_id'),
+                    config('bouncemanager.oauth_client_id'),
+                    config('bouncemanager.oauth_secret'),
+                ));
+                break;
+            case 'imap':
+                $bounceManager->setClient(
+                    new ImapClient(
+                        config('bouncemanager.host'),
+                        config('bouncemanager.port'),
+                        config('bouncemanager.username'),
+                        config('bouncemanager.password'),
+                        config('bouncemanager.mailbox'),
+                        config('bouncemanager.options')
+                    )
+                );
+                break;
         }
-        $messages = $messages->get();
-        $notifications = [];
-        foreach($messages as $message) {
-            if(!isset($notifications[$message->headers->sender])) {
-                $notifications[$message->headers->sender] = [];
-            }
 
-            $notifications[$message->headers->sender][] = [
-                'sent_to' => $message->headers->sentTo,
-                'subject' => $message->headers->subject,
-                'reason' => $message->reason,
-            ];
+
+
+        if(config('bouncemanager.delete_mode')) {
+            $bounceManager->enableDeleteMode();
         }
+
+        $notifications = $bounceManager->toArray();
+
 
         foreach($notifications as $to => $bounceContent) {
             $user = DB::table(config('bouncemanager.usertable'))->where('email', $to)->first();
