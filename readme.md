@@ -23,14 +23,14 @@ string  $subject ='' optional subject
 Package can be customized with optional env variables
 
 | Variable                     | Description                                                         |
-| ---------------------------- | ------------------------------------------------------------------- | ----------------------------- |
-| `BOUNCEMAIL_HOST`            | IMAP host url, default: **MAIL_HOST** from .env                     |
+| ---------------------------- | ------------------------------------------------------------------- | 
+| `BOUNCEMAIL_HOST`            | IMAP host url, default: **MAIL_HOST** from .env                     |    
 | `BOUNCEMAIL_PORT`            | IMAP port, default: **993**                                         |
 | `BOUNCEMAIL_USERNAME`        | IMAP username, default: **MAIL_USERNAME** from .env                 |
 | `BOUNCEMAIL_PASSWORD`        | IMAP password, default: **MAIL_PASSWORD** from .env                 |
 | `BOUNCEMAIL_MAILBOX`         | Mailox name, default: **INBOX**                                     |
 | `BOUNCEMAIL_DELETE_MODE`     | False will use _read/unread_ instead of deleting, default: **true** |
-| `BOUNCEMAIL_TYPE`            | Mailbox type: null                                                  | imap,o365 , default: **imap** |
+| `BOUNCEMAIL_TYPE`            | Mailbox type: null. imap,o365 , default: **imap**                   |                           
 | `BOUNCEMAIL_OAUTH_CLIENT_ID` | Oauth client id , default: **null**                                 |
 | `BOUNCEMAIL_OAUTH_SECRET`    | Oauth secret , default: **null**                                    |
 | `BOUNCEMAIL_AZURE_TENANT_ID` | Azure tenant id if using office 365 , default: **null**             |
@@ -101,6 +101,9 @@ php artisan bouncemanager:run
 ## PHP
 
 ```php
+
+Check the [Wiki](https://github.com/Molnix-open-source/BouncedMailManager/wiki/Usage) for usage instructions.
+
 $messages = (new  BounceManager(
 string  $host, string  $port = '993', string  $username, string  $password, string  $mailbox = 'INBOX'
 ))->get()
