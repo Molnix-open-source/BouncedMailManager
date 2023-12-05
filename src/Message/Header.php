@@ -2,7 +2,7 @@
 
 namespace Molnix\BouncedMailManager\Message;
 
-use Ddeboer\Imap\Message;
+use Webklex\PHPIMAP\Message;
 
 class Header
 {
@@ -31,7 +31,7 @@ class Header
         $this->sentTo = $this->getHeader(Header::SENT_TO_HEADER);
         $this->subject = $this->getHeader(Header::SUBJECT_HEADER);
         $verifyHash = $this->getHeader(self::VERIFY_HEADER);
-        $this->verified = password_verify($this->sender.$this->sentTo, $verifyHash);
+        $this->verified = password_verify($this->sender . $this->sentTo, $verifyHash);
     }
 
     /**
@@ -48,7 +48,7 @@ class Header
             self::SENDER_HEADER => $sender,
             self::SENT_TO_HEADER => $sentTo,
             self::SUBJECT_HEADER => $subject,
-            self::VERIFY_HEADER => password_hash($sender.$sentTo, PASSWORD_BCRYPT)
+            self::VERIFY_HEADER => password_hash($sender . $sentTo, PASSWORD_BCRYPT)
         ];
     }
 
@@ -60,7 +60,7 @@ class Header
      */
     protected function getHeader(string $key): string
     {
-        $body = $this->message->getRawMessage();
+        $body = $this->message->getRawBody();
         return (preg_match("/^$key:.*/m", $body, $match)) ? trim(str_replace("$key:", '', $match[0])) : '';
     }
 

@@ -10,6 +10,26 @@ return [
     */
 
     /**
+     * Type of mailbox, imap or o365
+     */
+    'type' => env('BOUNCEMAIL_TYPE', env('BOUNCEMAIL_TYPE', 'imap')),
+
+    /**
+     * Oauth client id
+     */
+    'oauth_client_id' => env('BOUNCEMAIL_OAUTH_CLIENT_ID', env('BOUNCEMAIL_CLIENT_ID')),
+
+    /**
+     * Oauth secret
+     */
+    'oauth_secret' => env('BOUNCEMAIL_OAUTH_SECRET', env('BOUNCEMAIL_OAUTH_SECRET')),
+
+    /**
+     * Azure tenant id
+     */
+    'azure_tenant_id' => env('BOUNCEMAIL_AZURE_TENANT_ID', env('BOUNCEMAIL_AZURE_TENANT_ID')),
+
+    /**
      * IMAP host url
      */
     'host' => env('BOUNCEMAIL_HOST', env('MAIL_HOST')),
@@ -47,5 +67,10 @@ return [
     /**
      * Users table to lookup locale, eng will be used by default
      */
-    'usertable' =>   env('BOUNCEMAIL_USER_TABLE', 'users')
+    'usertable' =>   env('BOUNCEMAIL_USER_TABLE', 'users'),
+
+    /**
+     * Additional options
+     */
+    'options' => [],
 ];

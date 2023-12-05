@@ -2,37 +2,64 @@
 
 namespace Molnix\BouncedMailManager;
 
-use Ddeboer\Imap\Server;
+use Carbon\Carbon;
+use Molnix\BouncedMailManager\Clients\ImapClient;
+use Molnix\BouncedMailManager\Clients\ClientContract;
 use Molnix\BouncedMailManager\Message\BouncedMessage;
+use Molnix\BouncedMailManager\Exceptions\BounceManagerException;
 
 class BounceManager
 {
     protected $config;
     protected $daysFrom;
     protected $deleteMode = false;
-    protected $connection;
+    protected $client;
+    protected $mailbox;
+    protected $options;
 
     /**
-     * IMAP connection
+     * Creates new instance of bounce manager
      *
-     * @param string $host
+     * @param string|null|null $host
      * @param string $port
-     * @param string $username
-     * @param string $password
+     * @param string|null|null $username
+     * @param string|null|null $password
      * @param string $mailbox
+     * @param array $options
      */
-    public function __construct(string $host, string $port = '993', string $username, string $password, string $mailbox = 'INBOX')
+    public function __construct(string|null $host = null, string $port = '993', string|null $username = null, string|null $password = null, string $mailbox = 'INBOX', array $options = [])
     {
-        $this->config = [
-            'host' => $host,
-            'port' => $port,
-            'username' => $username,
-            'password' => $password,
-            'mailbox' => $mailbox,
-        ];
-        $server = new Server($this->config['host'], $this->config['port']);
-        $this->connection = $server->authenticate($this->config['username'], $this->config['password']);
+        $this->setMailbox($mailbox);
 
+        if($host) {
+            $this->setClient(new ImapClient($host, (int) $port, $username, $password, $options));
+        }
+
+    }
+
+    /**
+     * Sets client, example Imap or O365 or custom
+     *
+     * @param ClientContract $client
+     * @return BounceManager
+     */
+    public function setClient(ClientContract $client): BounceManager
+    {
+        $this->client = $client->getClient();
+        $this->client->connect();
+        return $this;
+    }
+
+    /**
+     * Set mailbox to parse
+     *
+     * @param string $mailbox
+     * @return BounceManager
+     */
+    public function setMailbox(string $mailbox = 'INBOX'): BounceManager
+    {
+        $this->mailbox = $mailbox;
+        return $this;
     }
 
     /**
@@ -64,24 +91,60 @@ class BounceManager
      * @param integer|null $daysFrom
      * @return array
      */
-    public function get(int $daysFrom = 1): array
+    public function get(int $daysFrom = null): array
     {
-        $today = new \DateTimeImmutable();
-        $mailbox = $this->connection->getMailbox($this->config['mailbox']);
-        $dateFrom = $today->sub(new \DateInterval("P{$this->daysFrom}D"));
 
-        $messages = ($this->daysFrom == -1) ?
-        $mailbox->getMessages() :
-        $mailbox->getMessages(
-            new \Ddeboer\Imap\Search\Date\Since($dateFrom),
-            \SORTARRIVAL,
-            true
-        );
+
+        return $this->parse($daysFrom);
+    }
+
+    /**
+     * Get bounces as array
+     *
+     * @param integer|null $daysFrom
+     * @return array
+     */
+    public function toArray(int $daysFrom = null): array
+    {
+        $messages = $this->parse($daysFrom);
         $bounces = [];
-        foreach ($messages as $message) {
-            if (!$this->deleteMode && $message->isSeen()) {
-                continue;
+        foreach($messages as $message) {
+            if(!isset($bounces[$message->headers->sender])) {
+                $bounces[$message->headers->sender] = [];
             }
+
+            $bounces[$message->headers->sender][] = [
+                'sent_to' => $message->headers->sentTo,
+                'subject' => $message->headers->subject,
+                'reason' => $message->reason,
+            ];
+        }
+        return $bounces;
+    }
+
+    /**
+     * Parse bounces from mailbox
+     *
+     * @param integer|null $daysFrom
+     * @return array
+     */
+    protected function parse(int $daysFrom = null): array
+    {
+        if(!$this->client) {
+            throw new BounceManagerException('Client not created, use setClient() or provide with constructor', 1);
+        }
+        $daysFrom = $daysFrom ? $daysFrom : $this->daysFrom;
+        $mailbox = $this->client->getFolderByName($this->mailbox);
+        $folder = $mailbox->query()->leaveUnread();
+        $messages = ($daysFrom == -1) ? $folder : $folder->since(Carbon::now()->subDays($daysFrom));
+
+        if (!$this->deleteMode) {
+            $messages->unseen();
+        }
+
+        $bounces = [];
+        foreach ($messages->get() as $message) {
+            print_r($message->getRawBody());
 
             $bouncedMessage = new BouncedMessage($message);
 
@@ -99,7 +162,7 @@ class BounceManager
             if($this->deleteMode) {
                 $message->delete();
             } else {
-                $message->markAsSeen();
+                $message->setFlag('Seen');
             }
         }
         return $bounces;
