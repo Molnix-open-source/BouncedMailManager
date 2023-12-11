@@ -3,6 +3,7 @@
 namespace Molnix\BouncedMailManager\Traits;
 
 use Illuminate\Contracts\Mail\Mailable;
+use Illuminate\Mail\Mailables\Headers;
 use Illuminate\Support\Facades\Auth;
 use Molnix\BouncedMailManager\Message\Header;
 
@@ -17,10 +18,21 @@ trait BounceMailHeaders
      */
     public function setupBounceManager(): Mailable
     {
-        if(Auth::check() && Auth::user()->email) {
+        if (Auth::check() && Auth::user()->email) {
             $this->bounceSender = Auth::user()->email;
         }
         return $this;
+    }
+
+    public function headers(): Headers
+    {
+        if (!$this->bounceSender) {
+            return new Headers();
+        }
+        $sentTo = collect($this->to)->pluck('address')->implode(',');
+        return new Headers(
+            text: Header::getCustomHeaders($this->bounceSender, $sentTo, $this->subject)
+        );
     }
 
 
@@ -32,18 +44,10 @@ trait BounceMailHeaders
      */
     public function addBounceManagerHeaders(string $sender = null): Mailable
     {
-        $senderAddress = $sender ? $sender : $this->bounceSender;
-        if(!$senderAddress) {
-            return $this;
+        if ($sender) {
+            $this->bounceSender = $sender;
         }
-        return $this->withSwiftMessage(function ($message) use ($senderAddress) {
-            $sentTo = implode(',', array_keys($message->getTo()));
-            foreach(Header::getCustomHeaders($senderAddress, $sentTo, $message->getSubject()) as $name => $value) {
-                $message->getHeaders()->addTextHeader(
-                    $name,
-                    $value
-                );
-            }
-        });
+
+        return $this;
     }
 }
