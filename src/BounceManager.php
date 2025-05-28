@@ -91,7 +91,7 @@ class BounceManager
      * @param integer|null $daysFrom
      * @return array
      */
-    public function get(int $daysFrom = null): array
+    public function get(?int $daysFrom = null): array
     {
 
 
@@ -104,7 +104,7 @@ class BounceManager
      * @param integer|null $daysFrom
      * @return array
      */
-    public function toArray(int $daysFrom = null): array
+    public function toArray(?int $daysFrom = null): array
     {
         $messages = $this->parse($daysFrom);
         $bounces = [];
@@ -128,7 +128,7 @@ class BounceManager
      * @param integer|null $daysFrom
      * @return array
      */
-    protected function parse(int $daysFrom = null): array
+    protected function parse(?int $daysFrom = null): array
     {
         if(!$this->client) {
             throw new BounceManagerException('Client not created, use setClient() or provide with constructor', 1);
@@ -144,7 +144,6 @@ class BounceManager
 
         $bounces = [];
         foreach ($messages->get() as $message) {
-            print_r($message->getRawBody());
 
             $bouncedMessage = new BouncedMessage($message);
 
@@ -160,7 +159,7 @@ class BounceManager
 
             $bounces[] = $bouncedMessage;
             if($this->deleteMode) {
-                $message->delete();
+                $message->delete(true);
             } else {
                 $message->setFlag('Seen');
             }
