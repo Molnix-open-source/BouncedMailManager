@@ -11,7 +11,7 @@ class ImapClient implements ClientContract
     protected $config;
     protected $options;
 
-    public function __construct(string $host, int $port = 993, string $username, string $password, array $options = [])
+    public function __construct(string $host, int $port, string $username, string $password, array $options = [])
     {
         $this->options = $options;
         $this->config = [
