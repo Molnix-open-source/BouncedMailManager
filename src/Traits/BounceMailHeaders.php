@@ -42,7 +42,7 @@ trait BounceMailHeaders
      * @param string|null $sender
      * @return Mailable
      */
-    public function addBounceManagerHeaders(string $sender = null): Mailable
+    public function addBounceManagerHeaders(?string $sender = null): Mailable
     {
         if ($sender) {
             $this->bounceSender = $sender;
